@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Checkmark Beat Leasing</title>
+  <!-- External stylesheet -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Setup screen -->
+  <div class="container hidden" id="setup">
+    <img
+      src="https://static.wixstatic.com/media/afbb39_617140a20fbb47b2b858c0d3ef28a4ef~mv2.png"
+      alt="Checkmark Audio Logo"
+      class="logo"
+    >
+    <h1>Checkmark Beat Leasing Setup</h1>
+    <label>
+      Banner URL:
+      <input type="url" id="bannerURL" placeholder="https://example.com/banner.jpg">
+    </label>
+    <label>
+      Producer Name:
+      <input type="text" id="producerName" placeholder="Checkmark Audio">
+    </label>
+    <button id="saveSetup">Save &amp; Launch Widget</button>
+  </div>
+
+  <!-- Main widget -->
+  <div class="container hidden" id="widget">
+    <div id="notification"></div>
+    <img id="bannerImg" alt="Leasing Banner" class="banner">
+
+    <h2 id="brandName"></h2>
+
+    <div class="instructions">
+      To purchase a beat, select your lease tier, enter the Beat Title/ID and your contact email,
+      then click “Submit Order.” We’ll send payment instructions and deliver the beat upon confirmation.
+    </div>
+
+    <div class="tiers" id="tiersContainer"></div>
+
+    <label>
+      Beat Title:
+      <input type="text" id="beatTitle">
+    </label>
+    <label>
+      Email:
+      <input type="email" id="emailInput">
+    </label>
+    <button id="continueBtn">Submit Order</button>
+
+    <div id="adminPanel">
+      <h3>Admin Panel</h3>
+      <div class="flex-row">
+        <button id="viewPendingBtn">Pending Orders</button>
+        <button id="viewCompletedBtn">Completed Orders</button>
+      </div>
+      <ul id="pendingOrders"></ul>
+      <ul id="completedOrders"></ul>
+
+      <button id="toggleAgreementBtn">Toggle Lease Editor</button>
+      <div id="agreementSection">
+        <div class="flex-row agreement-editor-header">
+          <label for="editTierSelect">Tier:</label>
+          <select id="editTierSelect"></select>
+          <button id="saveAgreementBtn">Save Agreement</button>
+        </div>
+        <textarea id="agreementEditor" rows="12"></textarea>
+      </div>
+
+      <button id="togglePricingBtn">Toggle Pricing Editor</button>
+      <div id="pricingSection">
+        <div id="pricingContainer"></div>
+        <button id="savePricingBtn">Save Pricing</button>
+      </div>
+
+      <h3>Banner &amp; Password</h3>
+      <label>
+        Banner URL:
+        <input type="url" id="bannerAdminURL">
+      </label>
+      <button id="saveBannerBtn">Save Banner</button>
+
+      <label>
+        New Admin Password:
+        <input type="text" id="newAdminPassword">
+      </label>
+      <button id="saveAdmin">Save Password</button>
+
+      <button id="resetBtn">Reset All Data</button>
+    </div>
+  </div>
+
+  <!-- PDF library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <!-- Firebase & application logic -->
+  <script type="module" src="app.js"></script>
+</body>
+</html>

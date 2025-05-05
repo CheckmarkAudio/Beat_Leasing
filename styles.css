@@ -1,0 +1,148 @@
+/* Utility */
+.hidden {
+  display: none !important;
+}
+
+/* Base */
+body {
+  font-family: Arial, sans-serif;
+  background: #fff;
+  color: #000;
+  margin: 0;
+  padding: 20px;
+}
+
+.container {
+  max-width: 480px;
+  margin: 20px auto;
+  border: 1px solid #000;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.logo {
+  max-width: 120px;
+  display: block;
+  margin: 0 auto 10px;
+}
+
+.banner,
+#bannerImg {
+  display: none;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+h1,
+h2,
+h3 {
+  margin-top: 0;
+  text-align: center;
+}
+
+/* Instructions box */
+.instructions {
+  background: #eef;
+  padding: 10px;
+  border: 1px solid #99c;
+  border-radius: 4px;
+  margin: 15px 0;
+}
+
+/* Form elements */
+label {
+  display: block;
+  margin: 10px 0 5px;
+}
+
+input,
+button,
+textarea,
+select {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 10px;
+  border: 1px solid #000;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+/* Tier cards */
+.tiers {
+  margin: 20px 0;
+}
+
+.tier {
+  margin-bottom: 15px;
+  border: 1px solid #000;
+  padding: 10px;
+  border-radius: 6px;
+}
+
+.download-btn {
+  display: none;
+  background: #000;
+  color: #fff;
+  padding: 6px 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 8px;
+}
+
+/* Notification */
+#notification {
+  background: #fdd;
+  padding: 10px;
+  margin-bottom: 20px;
+  border: 1px solid #f00;
+  display: none;
+}
+
+/* Admin Panel */
+#adminPanel {
+  margin-top: 20px;
+  border-top: 1px dashed #000;
+  padding-top: 10px;
+  display: none;
+}
+
+/* Editors */
+#agreementSection,
+#pricingSection {
+  display: none;
+  margin-top: 10px;
+}
+
+/* Lists */
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+li {
+  margin-bottom: 8px;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 4px;
+}
+
+/* Buttons */
+.mark-btn {
+  background: #000;
+  color: #fff;
+  padding: 4px 8px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* Layout helpers */
+.flex-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.flex-row button {
+  flex: 1;
+}
