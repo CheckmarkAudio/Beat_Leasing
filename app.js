@@ -15,6 +15,7 @@ import {
   deleteDoc
 } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
 
+// Log that the module loaded and show the leaseId
 console.log(
   '✔️ app.js loaded, leaseId =',
   new URLSearchParams(window.location.search).get('leaseId') || 'default'
@@ -44,10 +45,10 @@ const leaseMakerConfig = {
   producerName: '',
   adminPassword: 'Checkmark Audio',
   tiers: [
-    { id: 'mp3',       name: 'MP3 Lease',      usage: 'Up to 10,000 streams, 1 video, credit & non-exclusive', price: '$30'  },
-    { id: 'wav',       name: 'WAV Lease',      usage: 'Up to 50,000 streams, 2 videos, stems unavailable',      price: '$60'  },
-    { id: 'unlimited', name: 'Unlimited Lease',usage: 'Unlimited streams & sales, non-exclusive',              price: '$150' },
-    { id: 'exclusive', name: 'Exclusive Rights',usage: 'Sole license, unlimited use',                            price: '$800' }
+    { id: 'mp3',       name: 'MP3 Lease',       usage: 'Up to 10,000 streams, 1 video, credit & non-exclusive', price: '$30'  },
+    { id: 'wav',       name: 'WAV Lease',       usage: 'Up to 50,000 streams, 2 videos, stems unavailable',      price: '$60'  },
+    { id: 'unlimited', name: 'Unlimited Lease', usage: 'Unlimited streams & sales, non-exclusive',              price: '$150' },
+    { id: 'exclusive', name: 'Exclusive Rights', usage: 'Sole license, unlimited use',                            price: '$800' }
   ],
   agreements: {
     mp3: `MP3 Lease Agreement
