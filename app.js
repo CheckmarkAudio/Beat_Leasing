@@ -72,7 +72,7 @@ const secretEnc = 'MTMyNDM1NDY1NzY4Nzk=';  // Base64 for admin check
 
 // ─── Firestore Helpers ───────────────────────────────────────────────────────
 async function loadConfig() {
-  const ref  = doc(db, 'leasing', leaseId, 'config');
+  const ref  = doc(db, 'leasing', leaseId); 
   const snap = await getDoc(ref);
   if (snap.exists()) return snap.data();
   await setDoc(ref, leaseMakerConfig);
