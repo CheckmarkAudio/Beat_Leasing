@@ -80,7 +80,7 @@ async function loadConfig() {
 }
 
 async function saveConfig(cfg) {
-  return setDoc(doc(db, 'leasing', leaseId, 'config'), cfg);
+  return setDoc(doc(db, 'leasing', leaseId), cfg);
 }
 
 async function loadOrders() {
