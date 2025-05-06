@@ -2,24 +2,18 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Checkmark Beat Leasing</title>
-  <!-- External stylesheet -->
   <link rel="stylesheet" href="styles.css">
-  <script>console.log('✔️ index.html loaded');</script>
 </head>
 <body>
-  <!-- Setup screen -->
+  <!-- Setup Screen -->
   <div class="container hidden" id="setup">
-    <img
-      src="https://static.wixstatic.com/media/afbb39_617140a20fbb47b2b858c0d3ef28a4ef~mv2.png"
-      alt="Checkmark Audio Logo"
-      class="logo"
-    >
+    <img src="https://static.wixstatic.com/media/afbb39_617140a20fbb47b2b858c0d3ef28a4ef~mv2.png" alt="Logo" class="logo">
     <h1>Checkmark Beat Leasing Setup</h1>
     <label>
       Banner URL:
-      <input type="url" id="bannerURL" placeholder="https://example.com/banner.jpg">
+      <input type="url" id="bannerURL" placeholder="https://...">
     </label>
     <label>
       Producer Name:
@@ -28,18 +22,17 @@
     <button id="saveSetup">Save &amp; Launch Widget</button>
   </div>
 
-  <!-- Main widget -->
+  <!-- Main Widget -->
   <div class="container hidden" id="widget">
-    <div id="notification"></div>
-    <img id="bannerImg" alt="Leasing Banner" class="banner">
-
+    <div id="notification" class="notification"></div>
+    <img id="bannerImg" alt="Banner" class="banner-img">
     <h2 id="brandName"></h2>
 
     <div class="instructions">
-      To purchase a beat, select your lease tier, enter the Beat Title/ID and your contact email,
-      then click “Submit Order.” We’ll send payment instructions and deliver the beat upon confirmation.
+      To purchase a beat, select your lease tier, enter the Beat Title/ID and your contact email, then click "Submit Order." We’ll send payment instructions and deliver the beat upon confirmation.
     </div>
 
+    <!-- Lease tiers -->
     <div class="tiers" id="tiersContainer"></div>
 
     <label>
@@ -52,18 +45,19 @@
     </label>
     <button id="continueBtn">Submit Order</button>
 
-    <div id="adminPanel">
+    <!-- Admin Panel -->
+    <div id="adminPanel" class="admin-panel hidden">
       <h3>Admin Panel</h3>
       <div class="flex-row">
         <button id="viewPendingBtn">Pending Orders</button>
         <button id="viewCompletedBtn">Completed Orders</button>
       </div>
-      <ul id="pendingOrders"></ul>
-      <ul id="completedOrders"></ul>
+      <ul id="pendingOrders" class="orders-list hidden"></ul>
+      <ul id="completedOrders" class="orders-list hidden"></ul>
 
       <button id="toggleAgreementBtn">Toggle Lease Editor</button>
-      <div id="agreementSection">
-        <div class="flex-row agreement-editor-header">
+      <div id="agreementSection" class="editor-section hidden">
+        <div class="flex-row">
           <label for="editTierSelect">Tier:</label>
           <select id="editTierSelect"></select>
           <button id="saveAgreementBtn">Save Agreement</button>
@@ -72,7 +66,7 @@
       </div>
 
       <button id="togglePricingBtn">Toggle Pricing Editor</button>
-      <div id="pricingSection">
+      <div id="pricingSection" class="editor-section hidden">
         <div id="pricingContainer"></div>
         <button id="savePricingBtn">Save Pricing</button>
       </div>
@@ -83,20 +77,16 @@
         <input type="url" id="bannerAdminURL">
       </label>
       <button id="saveBannerBtn">Save Banner</button>
-
       <label>
         New Admin Password:
         <input type="text" id="newAdminPassword">
       </label>
       <button id="saveAdmin">Save Password</button>
 
-      <button id="resetBtn">Reset All Data</button>
+      <button id="resetBtn" class="reset-btn">Reset All Data</button>
     </div>
   </div>
 
-  <!-- PDF library -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <!-- Firebase & application logic -->
   <script type="module" src="app.js"></script>
 </body>
 </html>
