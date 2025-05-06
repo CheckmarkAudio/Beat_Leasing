@@ -2,7 +2,7 @@
 
 // ─── Firebase SDK Imports ─────────────────────────────────────────────────────
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
-import { getAnalytics } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics.js';
+import { getAnalytics }  from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics.js';
 import {
   getFirestore,
   doc,
@@ -29,10 +29,9 @@ const firebaseConfig = {
   appId: "1:881274422822:web:3d3913844fd839962048e7",
   measurementId: "G-GY4Y2HWY4J"
 };
-
 const app = initializeApp(firebaseConfig);
 getAnalytics(app);
-const db = getFirestore(app);
+const db  = getFirestore(app);
 
 // ─── Default Config ──────────────────────────────────────────────────────────
 const leaseMakerConfig = {
@@ -40,10 +39,10 @@ const leaseMakerConfig = {
   producerName: '',
   adminPassword: 'Checkmark Audio',
   tiers: [
-    { id: 'mp3', name: 'MP3 Lease', usage: 'Up to 10,000 streams, 1 video, credit & non-exclusive', price: '$30' },
-    { id: 'wav', name: 'WAV Lease', usage: 'Up to 50,000 streams, 2 videos, stems unavailable', price: '$60' },
+    { id: 'mp3', name: 'MP3 Lease',      usage: 'Up to 10,000 streams, 1 video, credit & non-exclusive', price: '$30'  },
+    { id: 'wav', name: 'WAV Lease',      usage: 'Up to 50,000 streams, 2 videos, stems unavailable',      price: '$60'  },
     { id: 'unlimited', name: 'Unlimited Lease', usage: 'Unlimited streams & sales, non-exclusive', price: '$150' },
-    { id: 'exclusive', name: 'Exclusive Rights', usage: 'Sole license, unlimited use', price: '$800' }
+    { id: 'exclusive',   name: 'Exclusive Rights', usage: 'Sole license, unlimited use',            price: '$800' }
   ],
   agreements: {
     mp3: `MP3 Lease Agreement
@@ -72,7 +71,7 @@ const secretEnc = 'MTMyNDM1NDY1NzY4Nzk=';  // Base64 for admin check
 
 // ─── Firestore Helpers ───────────────────────────────────────────────────────
 async function loadConfig() {
-  const ref = doc(db, 'leasing', leaseId, 'config');
+  const ref  = doc(db, 'leasing', leaseId, 'config');
   const snap = await getDoc(ref);
   if (snap.exists()) return snap.data();
   await setDoc(ref, leaseMakerConfig);
@@ -129,7 +128,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 // ─── Rendering & PDF ─────────────────────────────────────────────────────────
 async function renderNotification() {
   const pending = (await loadOrders()).filter(o => !o.completed).length;
-  const n = document.getElementById('notification');
+  const n       = document.getElementById('notification');
   if (pending) {
     n.textContent = `You have ${pending} pending orders`;
     n.style.display = 'block';
@@ -151,7 +150,7 @@ async function renderOrders() {
     if (!o.completed) {
       const btn = document.createElement('button');
       btn.textContent = 'Mark Complete';
-      btn.className = 'mark-btn';
+      btn.className   = 'mark-btn';
       btn.onclick = async () => {
         await updateOrder(o.id, { completed: true });
         renderOrders();
@@ -167,8 +166,8 @@ async function renderOrders() {
 
 function generatePDF(id) {
   const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-  let y = 20;
+  const doc       = new jsPDF();
+  let y           = 20;
 
   doc.setFontSize(16);
   doc.text(`${cfg.tiers.find(t => t.id === id).name} Agreement`, 20, y);
@@ -242,13 +241,13 @@ function populateAgreementEditor() {
 async function initWidget() {
   const img = document.getElementById('bannerImg');
   if (cfg.banner) {
-    img.src = cfg.banner;
+    img.src           = cfg.banner;
     img.style.display = 'block';
   } else {
     img.style.display = 'none';
   }
   document.getElementById('bannerAdminURL').value = cfg.banner;
-  document.getElementById('brandName').textContent = cfg.producerName;
+  document.getElementById('brandName').textContent  = cfg.producerName;
 
   populateTiers();
   await renderNotification();
@@ -257,7 +256,7 @@ async function initWidget() {
     const email = document.getElementById('emailInput').value.trim();
     const beat  = document.getElementById('beatTitle').value.trim();
     const sel   = document.querySelector('input[name="tier"]:checked');
-    const secret = atob(secretEnc);
+    const secret= atob(secretEnc);
 
     // Admin login
     if (email === secret || email === cfg.adminPassword) {
@@ -274,9 +273,9 @@ async function initWidget() {
     }
 
     await addOrder({
-      date:     new Date().toISOString(),
+      date:      new Date().toISOString(),
       beat,
-      tier:     sel.value,
+      tier:      sel.value,
       email,
       completed: false
     });
@@ -316,14 +315,14 @@ async function initWidget() {
     alert('Agreement updated.');
   };
 
-  document.getElementById('savePricingBtn').onclick = async () => {
-    cfg.tiers.forEach(t => {
-      t.price = document.getElementById(`price_${t.id}`).value;
-    });
-    await saveConfig(cfg);
-    alert('Pricing updated.');
-    populateTiers();
-  };
+ 	document.getElementById('savePricingBtn').onclick = async () => {
+ 	  cfg.tiers.forEach(t => {
+ 	    t.price = document.getElementById(`price_${t.id}`).value;
+ 	  });
+ 	  await saveConfig(cfg);
+ 	  alert('Pricing updated.');
+ 	  populateTiers();
+ 	};
 
   document.getElementById('saveBannerBtn').onclick = async () => {
     cfg.banner = document.getElementById('bannerAdminURL').value;
