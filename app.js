@@ -1,6 +1,7 @@
 // app.js
 
 // ─── Firebase SDK Imports ─────────────────────────────────────────────────────
+
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
 import { getAnalytics }  from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics.js';
 import {
@@ -14,7 +15,7 @@ import {
   updateDoc,
   deleteDoc
 } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
-
+console.log('✔️ app.js loaded, leaseId =', new URLSearchParams(window.location.search).get('leaseId'));
 // ─── Instance Identifier ─────────────────────────────────────────────────────
 const params  = new URLSearchParams(window.location.search);
 const leaseId = params.get('leaseId') || 'default';  // e.g. "TigerBeatz"
