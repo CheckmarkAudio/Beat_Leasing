@@ -1,7 +1,6 @@
 // app.js
 
 // ─── Firebase SDK Imports ─────────────────────────────────────────────────────
-
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
 import { getAnalytics }  from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics.js';
 import {
@@ -15,10 +14,15 @@ import {
   updateDoc,
   deleteDoc
 } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
-console.log('✔️ app.js loaded, leaseId =', new URLSearchParams(window.location.search).get('leaseId'));
+
+console.log(
+  '✔️ app.js loaded, leaseId =',
+  new URLSearchParams(window.location.search).get('leaseId') || 'default'
+);
+
 // ─── Instance Identifier ─────────────────────────────────────────────────────
 const params  = new URLSearchParams(window.location.search);
-const leaseId = params.get('leaseId') || 'default';  // e.g. "TigerBeatz"
+const leaseId = params.get('leaseId') || 'default';
 
 // ─── Firebase Configuration & Initialization ─────────────────────────────────
 const firebaseConfig = {
@@ -40,10 +44,10 @@ const leaseMakerConfig = {
   producerName: '',
   adminPassword: 'Checkmark Audio',
   tiers: [
-    { id: 'mp3', name: 'MP3 Lease',      usage: 'Up to 10,000 streams, 1 video, credit & non-exclusive', price: '$30'  },
-    { id: 'wav', name: 'WAV Lease',      usage: 'Up to 50,000 streams, 2 videos, stems unavailable',      price: '$60'  },
-    { id: 'unlimited', name: 'Unlimited Lease', usage: 'Unlimited streams & sales, non-exclusive', price: '$150' },
-    { id: 'exclusive',   name: 'Exclusive Rights', usage: 'Sole license, unlimited use',            price: '$800' }
+    { id: 'mp3',       name: 'MP3 Lease',      usage: 'Up to 10,000 streams, 1 video, credit & non-exclusive', price: '$30'  },
+    { id: 'wav',       name: 'WAV Lease',      usage: 'Up to 50,000 streams, 2 videos, stems unavailable',      price: '$60'  },
+    { id: 'unlimited', name: 'Unlimited Lease',usage: 'Unlimited streams & sales, non-exclusive',              price: '$150' },
+    { id: 'exclusive', name: 'Exclusive Rights',usage: 'Sole license, unlimited use',                            price: '$800' }
   ],
   agreements: {
     mp3: `MP3 Lease Agreement
@@ -68,11 +72,11 @@ const leaseMakerConfig = {
 3. No further licenses.`
   }
 };
-const secretEnc = 'MTMyNDM1NDY1NzY4Nzk=';  // Base64 for admin check
+const secretEnc = 'MTMyNDM1NDY1NzY4Nzk=';  // Base64 for admin-password check
 
 // ─── Firestore Helpers ───────────────────────────────────────────────────────
 async function loadConfig() {
-  const ref  = doc(db, 'leasing', leaseId); 
+  const ref  = doc(db, 'leasing', leaseId);
   const snap = await getDoc(ref);
   if (snap.exists()) return snap.data();
   await setDoc(ref, leaseMakerConfig);
@@ -102,7 +106,7 @@ async function resetAll() {
   await Promise.all(snaps.docs.map(d => deleteDoc(d.ref)));
 }
 
-// ─── DOM Refs & Init ─────────────────────────────────────────────────────────
+// ─── DOM References & Initialization ─────────────────────────────────────────
 const setupDiv  = document.getElementById('setup');
 const widgetDiv = document.getElementById('widget');
 let cfg;
@@ -126,12 +130,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 });
 
-// ─── Rendering & PDF ─────────────────────────────────────────────────────────
+// ─── Notification & Order Rendering ──────────────────────────────────────────
 async function renderNotification() {
   const pending = (await loadOrders()).filter(o => !o.completed).length;
   const n       = document.getElementById('notification');
   if (pending) {
-    n.textContent = `You have ${pending} pending orders`;
+    n.textContent   = `You have ${pending} pending orders`;
     n.style.display = 'block';
   } else {
     n.style.display = 'none';
@@ -147,7 +151,6 @@ async function renderOrders() {
   (await loadOrders()).forEach(o => {
     const li = document.createElement('li');
     li.textContent = `${new Date(o.date).toLocaleString()} | ${o.beat} | ${o.tier} | ${o.email}`;
-
     if (!o.completed) {
       const btn = document.createElement('button');
       btn.textContent = 'Mark Complete';
@@ -165,6 +168,7 @@ async function renderOrders() {
   });
 }
 
+// ─── PDF Generation ───────────────────────────────────────────────────────────
 function generatePDF(id) {
   const { jsPDF } = window.jspdf;
   const doc       = new jsPDF();
@@ -173,13 +177,10 @@ function generatePDF(id) {
   doc.setFontSize(16);
   doc.text(`${cfg.tiers.find(t => t.id === id).name} Agreement`, 20, y);
   y += 10;
-
   doc.setFontSize(11);
+
   cfg.agreements[id].split('\n').forEach(line => {
-    if (y > 280) {
-      doc.addPage();
-      y = 20;
-    }
+    if (y > 280) { doc.addPage(); y = 20; }
     doc.text(line.replace(/{{producer}}/g, cfg.producerName), 20, y);
     y += 7;
   });
@@ -187,7 +188,7 @@ function generatePDF(id) {
   doc.save(`${id}-agreement.pdf`);
 }
 
-// ─── Populate UI ────────────────────────────────────────────────────────────
+// ─── UI Population ────────────────────────────────────────────────────────────
 function populateTiers() {
   const c = document.getElementById('tiersContainer');
   c.innerHTML = '';
@@ -238,7 +239,7 @@ function populateAgreementEditor() {
   sel.dispatchEvent(new Event('change'));
 }
 
-// ─── Main Widget ─────────────────────────────────────────────────────────────
+// ─── Main Widget Initialization ───────────────────────────────────────────────
 async function initWidget() {
   const img = document.getElementById('bannerImg');
   if (cfg.banner) {
@@ -316,14 +317,14 @@ async function initWidget() {
     alert('Agreement updated.');
   };
 
- 	document.getElementById('savePricingBtn').onclick = async () => {
- 	  cfg.tiers.forEach(t => {
- 	    t.price = document.getElementById(`price_${t.id}`).value;
- 	  });
- 	  await saveConfig(cfg);
- 	  alert('Pricing updated.');
- 	  populateTiers();
- 	};
+  document.getElementById('savePricingBtn').onclick = async () => {
+    cfg.tiers.forEach(t => {
+      t.price = document.getElementById(`price_${t.id}`).value;
+    });
+    await saveConfig(cfg);
+    alert('Pricing updated.');
+    populateTiers();
+  };
 
   document.getElementById('saveBannerBtn').onclick = async () => {
     cfg.banner = document.getElementById('bannerAdminURL').value;
