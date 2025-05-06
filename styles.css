@@ -1,19 +1,26 @@
 /* styles.css */
 
+/* Base reset */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Body */
+body {
+  font-family: Arial, sans-serif;
+  background: #fff;
+  color: #000;
+  padding: 20px;
+}
+
 /* Utility */
 .hidden {
   display: none !important;
 }
 
-/* Base */
-body {
-  font-family: Arial, sans-serif;
-  background: #fff;
-  color: #000;
-  margin: 0;
-  padding: 20px;
-}
-
+/* Containers */
 .container {
   max-width: 480px;
   margin: 20px auto;
@@ -22,24 +29,26 @@ body {
   border-radius: 8px;
 }
 
+/* Logo */
 .logo {
   max-width: 120px;
   display: block;
   margin: 0 auto 10px;
 }
 
-.banner,
-#bannerImg {
-  display: none;
-  width: 100%;
-  margin-bottom: 10px;
+/* Notification bar */
+.notification {
+  background: #fdd;
+  padding: 10px;
+  margin-bottom: 20px;
+  border: 1px solid #f00;
 }
 
-h1,
-h2,
-h3 {
-  margin-top: 0;
-  text-align: center;
+/* Banner image */
+.banner-img {
+  width: 100%;
+  display: block;
+  margin-bottom: 10px;
 }
 
 /* Instructions box */
@@ -51,25 +60,7 @@ h3 {
   margin: 15px 0;
 }
 
-/* Form elements */
-label {
-  display: block;
-  margin: 10px 0 5px;
-}
-
-input,
-button,
-textarea,
-select {
-  width: 100%;
-  padding: 8px;
-  margin-bottom: 10px;
-  border: 1px solid #000;
-  border-radius: 4px;
-  box-sizing: border-box;
-}
-
-/* Tier cards */
+/* Lease tiers list */
 .tiers {
   margin: 20px 0;
 }
@@ -81,8 +72,73 @@ select {
   border-radius: 6px;
 }
 
-.download-btn {
-  display: none;
+/* Form elements */
+label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+input,
+textarea,
+select,
+button {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 10px;
+  border: 1px solid #000;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 1rem;
+}
+
+/* Buttons */
+button {
+  background: #000;
+  color: #fff;
+  cursor: pointer;
+}
+
+/* Smaller buttons inside flex rows */
+.flex-row button {
+  flex: 1;
+  padding: 6px 10px;
+}
+
+/* Admin panel layout */
+.admin-panel {
+  margin-top: 20px;
+  border-top: 1px dashed #000;
+  padding-top: 10px;
+}
+
+/* Flex rows */
+.flex-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.flex-row label {
+  margin: 0;
+  flex-shrink: 0;
+}
+
+/* Orders lists */
+.orders-list {
+  list-style: none;
+  padding: 0;
+  margin: 10px 0;
+}
+
+.orders-list li {
+  margin-bottom: 8px;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 4px;
+}
+
+/* Download / mark-complete buttons */
+.download-btn,
+.mark-btn {
   background: #000;
   color: #fff;
   padding: 6px 10px;
@@ -90,61 +146,18 @@ select {
   border-radius: 4px;
   cursor: pointer;
   margin-top: 8px;
-}
-
-/* Notification */
-#notification {
-  background: #fdd;
-  padding: 10px;
-  margin-bottom: 20px;
-  border: 1px solid #f00;
   display: none;
 }
 
-/* Admin Panel */
-#adminPanel {
-  margin-top: 20px;
-  border-top: 1px dashed #000;
-  padding-top: 10px;
-  display: none;
-}
-
-/* Editors */
-#agreementSection,
-#pricingSection {
-  display: none;
+/* Editor sections */
+.editor-section {
   margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #ccc;
 }
 
-/* Lists */
-ul {
-  list-style: none;
-  padding: 0;
-}
-
-li {
-  margin-bottom: 8px;
-  border-bottom: 1px solid #ccc;
-  padding-bottom: 4px;
-}
-
-/* Buttons */
-.mark-btn {
-  background: #000;
-  color: #fff;
-  padding: 4px 8px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-/* Layout helpers */
-.flex-row {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-
-.flex-row button {
-  flex: 1;
+/* Reset button */
+.reset-btn {
+  background: #c00;
+  margin-top: 20px;
 }
