@@ -36,7 +36,7 @@ const firebaseConfig = {
   measurementId: "G-GY4Y2HWY4J"
 };
 const app       = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+getAnalytics(app);
 const db        = getFirestore(app);
 
 // ─── Default Configuration Data ─────────────────────────────────────────────
@@ -77,7 +77,7 @@ const secretEnc = 'MTMyNDM1NDY1NzY4Nzk=';  // Base64 for admin-password check
 
 // ─── Firestore Helper Functions ─────────────────────────────────────────────
 async function loadConfig() {
-  // ← 2 segments: leasing/{leaseId}
+  // Path: leasing/{leaseId}
   const ref  = doc(db, 'leasing', leaseId);
   const snap = await getDoc(ref);
   if (snap.exists()) return snap.data();
@@ -86,12 +86,12 @@ async function loadConfig() {
 }
 
 async function saveConfig(cfg) {
-  // ← 2 segments: leasing/{leaseId}
+  // Path: leasing/{leaseId}
   return setDoc(doc(db, 'leasing', leaseId), cfg);
 }
 
 async function loadOrders() {
-  // ← 4 segments: leasing/{leaseId}/orders/items
+  // Path: leasing/{leaseId}/orders/items
   const snap = await getDocs(collection(db, 'leasing', leaseId, 'orders', 'items'));
   return snap.docs.map(d => ({ id: d.id, ...d.data() }));
 }
@@ -105,14 +105,14 @@ async function updateOrder(id, data) {
 }
 
 async function resetAll() {
-  // ← delete the config doc itself
+  // Delete the config document itself
   await deleteDoc(doc(db, 'leasing', leaseId));
-  // ← then delete each order item
+  // Then delete all order items
   const snaps = await getDocs(collection(db, 'leasing', leaseId, 'orders', 'items'));
   await Promise.all(snaps.docs.map(d => deleteDoc(d.ref)));
 }
 
-// ─── DOM References & Initialization ────────────────────────────────────────
+// ─── DOM References & App Initialization ────────────────────────────────────
 const setupDiv  = document.getElementById('setup');
 const widgetDiv = document.getElementById('widget');
 let cfg;
@@ -194,6 +194,7 @@ function generatePDF(id) {
 function populateTiers() {
   const c = document.getElementById('tiersContainer');
   c.innerHTML = '';
+
   cfg.tiers.forEach(t => {
     const div = document.createElement('div');
     div.className = 'tier';
