@@ -1,7 +1,4 @@
 // app.js
-// ─── Instance Identifier ─────────────────────────────────────────────────────
-const params  = new URLSearchParams(window.location.search);
-const leaseId = params.get('leaseId') || 'default';  // e.g. "TigerBeatz"
 
 // ─── Firebase SDK Imports ─────────────────────────────────────────────────────
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
@@ -18,6 +15,10 @@ import {
   deleteDoc
 } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
 
+// ─── Instance Identifier ─────────────────────────────────────────────────────
+const params  = new URLSearchParams(window.location.search);
+const leaseId = params.get('leaseId') || 'default';  // e.g. "TigerBeatz"
+
 // ─── Firebase Configuration & Initialization ─────────────────────────────────
 const firebaseConfig = {
   apiKey: "AIzaSyCarCLcVjERgmn0hOAoh3iN3poOIo9Zxsg",
@@ -28,6 +29,7 @@ const firebaseConfig = {
   appId: "1:881274422822:web:3d3913844fd839962048e7",
   measurementId: "G-GY4Y2HWY4J"
 };
+
 const app = initializeApp(firebaseConfig);
 getAnalytics(app);
 const db = getFirestore(app);
@@ -76,19 +78,24 @@ async function loadConfig() {
   await setDoc(ref, leaseMakerConfig);
   return leaseMakerConfig;
 }
+
 async function saveConfig(cfg) {
   return setDoc(doc(db, 'leasing', leaseId, 'config'), cfg);
 }
+
 async function loadOrders() {
   const snap = await getDocs(collection(db, 'leasing', leaseId, 'orders', 'items'));
   return snap.docs.map(d => ({ id: d.id, ...d.data() }));
 }
+
 async function addOrder(order) {
   return addDoc(collection(db, 'leasing', leaseId, 'orders', 'items'), order);
 }
+
 async function updateOrder(id, data) {
   return updateDoc(doc(db, 'leasing', leaseId, 'orders', 'items', id), data);
 }
+
 async function resetAll() {
   await deleteDoc(doc(db, 'leasing', leaseId, 'config'));
   const snaps = await getDocs(collection(db, 'leasing', leaseId, 'orders', 'items'));
@@ -123,68 +130,109 @@ document.addEventListener('DOMContentLoaded', async () => {
 async function renderNotification() {
   const pending = (await loadOrders()).filter(o => !o.completed).length;
   const n = document.getElementById('notification');
-  if (pending) { n.textContent = `You have ${pending} pending orders`; n.style.display = 'block'; }
-  else       { n.style.display = 'none'; }
+  if (pending) {
+    n.textContent = `You have ${pending} pending orders`;
+    n.style.display = 'block';
+  } else {
+    n.style.display = 'none';
+  }
 }
+
 async function renderOrders() {
   const pList = document.getElementById('pendingOrders');
   const cList = document.getElementById('completedOrders');
-  pList.innerHTML = ''; cList.innerHTML = '';
+  pList.innerHTML = '';
+  cList.innerHTML = '';
+
   (await loadOrders()).forEach(o => {
     const li = document.createElement('li');
     li.textContent = `${new Date(o.date).toLocaleString()} | ${o.beat} | ${o.tier} | ${o.email}`;
+
     if (!o.completed) {
       const btn = document.createElement('button');
-      btn.textContent = 'Mark Complete'; btn.className = 'mark-btn';
-      btn.onclick = async () => { await updateOrder(o.id, { completed: true }); renderOrders(); renderNotification(); };
+      btn.textContent = 'Mark Complete';
+      btn.className = 'mark-btn';
+      btn.onclick = async () => {
+        await updateOrder(o.id, { completed: true });
+        renderOrders();
+        renderNotification();
+      };
       li.appendChild(btn);
       pList.appendChild(li);
-    } else cList.appendChild(li);
+    } else {
+      cList.appendChild(li);
+    }
   });
 }
+
 function generatePDF(id) {
   const { jsPDF } = window.jspdf;
-  const doc = new jsPDF(); let y = 20;
-  doc.setFontSize(16); doc.text(`${cfg.tiers.find(t => t.id===id).name} Agreement`, 20, y);
-  y += 10; doc.setFontSize(11);
+  const doc = new jsPDF();
+  let y = 20;
+
+  doc.setFontSize(16);
+  doc.text(`${cfg.tiers.find(t => t.id === id).name} Agreement`, 20, y);
+  y += 10;
+
+  doc.setFontSize(11);
   cfg.agreements[id].split('\n').forEach(line => {
-    if (y > 280) { doc.addPage(); y = 20; }
+    if (y > 280) {
+      doc.addPage();
+      y = 20;
+    }
     doc.text(line.replace(/{{producer}}/g, cfg.producerName), 20, y);
     y += 7;
   });
+
   doc.save(`${id}-agreement.pdf`);
 }
 
 // ─── Populate UI ────────────────────────────────────────────────────────────
 function populateTiers() {
-  const c = document.getElementById('tiersContainer'); c.innerHTML = '';
+  const c = document.getElementById('tiersContainer');
+  c.innerHTML = '';
+
   cfg.tiers.forEach(t => {
-    const div = document.createElement('div'); div.className = 'tier';
+    const div = document.createElement('div');
+    div.className = 'tier';
     div.innerHTML = `
-      <label><input type="radio" name="tier" value="${t.id}"/> <strong>${t.name}</strong></label>
+      <label>
+        <input type="radio" name="tier" value="${t.id}" />
+        <strong>${t.name}</strong>
+      </label>
       <div>${t.usage}</div>
       <div>Price: <strong>${t.price}</strong></div>
       <button class="download-btn" data-tier="${t.id}">Download Agreement</button>
     `;
     c.appendChild(div);
   });
-  document.querySelectorAll('input[name="tier"]').forEach(r => r.onchange = () => {
-    document.querySelectorAll('.download-btn').forEach(b => b.style.display = 'none');
-    const b = document.querySelector(`.download-btn[data-tier="${r.value}"]`);
-    if (b) b.style.display = 'block';
+
+  document.querySelectorAll('input[name="tier"]').forEach(r => {
+    r.onchange = () => {
+      document.querySelectorAll('.download-btn').forEach(b => b.style.display = 'none');
+      const b = document.querySelector(`.download-btn[data-tier="${r.value}"]`);
+      if (b) b.style.display = 'block';
+    };
   });
-  document.querySelectorAll('.download-btn').forEach(b => b.onclick = () => generatePDF(b.dataset.tier));
+
+  document.querySelectorAll('.download-btn').forEach(b => {
+    b.onclick = () => generatePDF(b.dataset.tier);
+  });
 }
+
 function populatePricingEditor() {
-  const pc = document.getElementById('pricingContainer'); pc.innerHTML = '';
+  const pc = document.getElementById('pricingContainer');
+  pc.innerHTML = '';
   cfg.tiers.forEach(t => {
     const d = document.createElement('div');
-    d.innerHTML = `<label>${t.name} Price:<input type="text" id="price_${t.id}" value="${t.price}"/></label>`;
+    d.innerHTML = `<label>${t.name} Price:<input type="text" id="price_${t.id}" value="${t.price}" /></label>`;
     pc.appendChild(d);
   });
 }
+
 function populateAgreementEditor() {
-  const sel = document.getElementById('editTierSelect'); sel.innerHTML = '';
+  const sel = document.getElementById('editTierSelect');
+  sel.innerHTML = '';
   cfg.tiers.forEach(t => sel.appendChild(new Option(t.name, t.id)));
   sel.onchange = () => document.getElementById('agreementEditor').value = cfg.agreements[sel.value];
   sel.dispatchEvent(new Event('change'));
@@ -192,89 +240,115 @@ function populateAgreementEditor() {
 
 // ─── Main Widget ─────────────────────────────────────────────────────────────
 async function initWidget() {
-  // Banner & branding
   const img = document.getElementById('bannerImg');
-  if (cfg.banner) { img.src = cfg.banner; img.style.display = 'block'; }
-  else { img.style.display = 'none'; }
+  if (cfg.banner) {
+    img.src = cfg.banner;
+    img.style.display = 'block';
+  } else {
+    img.style.display = 'none';
+  }
   document.getElementById('bannerAdminURL').value = cfg.banner;
   document.getElementById('brandName').textContent = cfg.producerName;
 
-  // Render tiers & notifications
-  populateTiers(); await renderNotification();
+  populateTiers();
+  await renderNotification();
 
-  // Submit / Continue
   document.getElementById('continueBtn').onclick = async () => {
     const email = document.getElementById('emailInput').value.trim();
     const beat  = document.getElementById('beatTitle').value.trim();
     const sel   = document.querySelector('input[name="tier"]:checked');
-    const secret= atob(secretEnc);
+    const secret = atob(secretEnc);
 
     // Admin login
-    if (email===secret || email===cfg.adminPassword) {
+    if (email === secret || email === cfg.adminPassword) {
       document.getElementById('adminPanel').style.display = 'block';
-      await renderOrders(); for (let fn of [populateAgreementEditor, populatePricingEditor]) fn();
+      await renderOrders();
+      populateAgreementEditor();
+      populatePricingEditor();
       return;
     }
 
-    // Validate & add order
-    if (!beat || !sel || !email) return alert('Select tier, enter beat and email.');
-    await addOrder({ date: new Date().toISOString(), beat, tier: sel.value, email, completed:false });
+    // New order
+    if (!beat || !sel || !email) {
+      return alert('Select tier, enter beat and email.');
+    }
+
+    await addOrder({
+      date:     new Date().toISOString(),
+      beat,
+      tier:     sel.value,
+      email,
+      completed: false
+    });
+
     alert('Order received!');
-    document.getElementById('beatTitle').value='';
-    document.getElementById('emailInput').value='';
-    document.querySelectorAll('input[name="tier"]').forEach(i=>i.checked=false);
-    document.querySelectorAll('.download-btn').forEach(b=>b.style.display='none');
+    document.getElementById('beatTitle').value = '';
+    document.getElementById('emailInput').value = '';
+    document.querySelectorAll('input[name="tier"]').forEach(i => i.checked = false);
+    document.querySelectorAll('.download-btn').forEach(b => b.style.display = 'none');
     await renderNotification();
   };
 
-  // Toggle lists
   document.getElementById('viewPendingBtn').onclick = () => {
     const p = document.getElementById('pendingOrders');
-    p.style.display = p.style.display==='block'?'none':'block';
-    document.getElementById('completedOrders').style.display='none';
+    p.style.display = p.style.display === 'block' ? 'none' : 'block';
+    document.getElementById('completedOrders').style.display = 'none';
   };
   document.getElementById('viewCompletedBtn').onclick = () => {
     const c = document.getElementById('completedOrders');
-    c.style.display = c.style.display==='block'?'none':'block';
-    document.getElementById('pendingOrders').style.display='none';
+    c.style.display = c.style.display === 'block' ? 'none' : 'block';
+    document.getElementById('pendingOrders').style.display = 'none';
   };
 
-  // Toggle editors
   document.getElementById('toggleAgreementBtn').onclick = () => {
-    const sec = document.getElementById('agreementSection');
-    sec.style.display = sec.style.display==='block'?'none':'block';
+    const s = document.getElementById('agreementSection');
+    s.style.display = s.style.display === 'block' ? 'none' : 'block';
   };
   document.getElementById('togglePricingBtn').onclick = () => {
-    const sec = document.getElementById('pricingSection');
-    sec.style.display = sec.style.display==='block'?'none':'block';
+    const s = document.getElementById('pricingSection');
+    s.style.display = s.style.display === 'block' ? 'none' : 'block';
   };
 
-  // Save actions
   document.getElementById('saveAgreementBtn').onclick = async () => {
     const id = document.getElementById('editTierSelect').value;
     cfg.agreements[id] = document.getElementById('agreementEditor').value;
     await saveConfig(cfg);
     alert('Agreement updated.');
   };
+
   document.getElementById('savePricingBtn').onclick = async () => {
-    cfg.tiers.forEach(t=>t.price=document.getElementById(`price_${t.id}`).value);
+    cfg.tiers.forEach(t => {
+      t.price = document.getElementById(`price_${t.id}`).value;
+    });
     await saveConfig(cfg);
     alert('Pricing updated.');
     populateTiers();
   };
+
   document.getElementById('saveBannerBtn').onclick = async () => {
     cfg.banner = document.getElementById('bannerAdminURL').value;
     document.getElementById('bannerImg').src = cfg.banner;
     await saveConfig(cfg);
     alert('Banner updated.');
   };
+
   document.getElementById('saveAdmin').onclick = async () => {
     const np = document.getElementById('newAdminPassword').value;
-    if (np) { cfg.adminPassword=np; await saveConfig(cfg); alert('Password updated.'); document.getElementById('newAdminPassword').value=''; }
+    if (np) {
+      cfg.adminPassword = np;
+      await saveConfig(cfg);
+      alert('Password updated.');
+      document.getElementById('newAdminPassword').value = '';
+    }
   };
+
   document.getElementById('resetBtn').onclick = async () => {
     const pw = prompt('Enter admin password to reset:');
-    if (pw===cfg.adminPassword) { await resetAll(); location.reload(); }
-    else alert('Incorrect password.');
+    if (pw === cfg.adminPassword) {
+      await resetAll();
+      location.reload();
+    } else {
+      alert('Incorrect password.');
+    }
   };
 }
