@@ -15,7 +15,7 @@ import {
   deleteDoc
 } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
 
-// Log that the module loaded and show the leaseId
+// Debug: confirm module load and leaseId
 console.log(
   '✔️ app.js loaded, leaseId =',
   new URLSearchParams(window.location.search).get('leaseId') || 'default'
@@ -23,7 +23,7 @@ console.log(
 
 // ─── Instance Identifier ─────────────────────────────────────────────────────
 const params  = new URLSearchParams(window.location.search);
-const leaseId = params.get('leaseId') || 'default';
+const leaseId = params.get('leaseId') || 'default';  // e.g. "TigerBeatz"
 
 // ─── Firebase Configuration & Initialization ─────────────────────────────────
 const firebaseConfig = {
@@ -35,11 +35,11 @@ const firebaseConfig = {
   appId: "1:881274422822:web:3d3913844fd839962048e7",
   measurementId: "G-GY4Y2HWY4J"
 };
-const app = initializeApp(firebaseConfig);
-getAnalytics(app);
-const db  = getFirestore(app);
+const app       = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+const db        = getFirestore(app);
 
-// ─── Default Config ──────────────────────────────────────────────────────────
+// ─── Default Configuration Data ─────────────────────────────────────────────
 const leaseMakerConfig = {
   banner: '',
   producerName: '',
@@ -75,8 +75,9 @@ const leaseMakerConfig = {
 };
 const secretEnc = 'MTMyNDM1NDY1NzY4Nzk=';  // Base64 for admin-password check
 
-// ─── Firestore Helpers ───────────────────────────────────────────────────────
+// ─── Firestore Helper Functions ─────────────────────────────────────────────
 async function loadConfig() {
+  // ← 2 segments: leasing/{leaseId}
   const ref  = doc(db, 'leasing', leaseId);
   const snap = await getDoc(ref);
   if (snap.exists()) return snap.data();
@@ -85,10 +86,12 @@ async function loadConfig() {
 }
 
 async function saveConfig(cfg) {
+  // ← 2 segments: leasing/{leaseId}
   return setDoc(doc(db, 'leasing', leaseId), cfg);
 }
 
 async function loadOrders() {
+  // ← 4 segments: leasing/{leaseId}/orders/items
   const snap = await getDocs(collection(db, 'leasing', leaseId, 'orders', 'items'));
   return snap.docs.map(d => ({ id: d.id, ...d.data() }));
 }
@@ -102,12 +105,14 @@ async function updateOrder(id, data) {
 }
 
 async function resetAll() {
+  // ← delete the config doc itself
   await deleteDoc(doc(db, 'leasing', leaseId));
+  // ← then delete each order item
   const snaps = await getDocs(collection(db, 'leasing', leaseId, 'orders', 'items'));
   await Promise.all(snaps.docs.map(d => deleteDoc(d.ref)));
 }
 
-// ─── DOM References & Initialization ─────────────────────────────────────────
+// ─── DOM References & Initialization ────────────────────────────────────────
 const setupDiv  = document.getElementById('setup');
 const widgetDiv = document.getElementById('widget');
 let cfg;
@@ -131,16 +136,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 });
 
-// ─── Notification & Order Rendering ──────────────────────────────────────────
+// ─── Notification & Order Rendering ─────────────────────────────────────────
 async function renderNotification() {
   const pending = (await loadOrders()).filter(o => !o.completed).length;
   const n       = document.getElementById('notification');
-  if (pending) {
-    n.textContent   = `You have ${pending} pending orders`;
-    n.style.display = 'block';
-  } else {
-    n.style.display = 'none';
-  }
+  n.textContent   = pending ? `You have ${pending} pending orders` : '';
+  n.style.display = pending ? 'block' : 'none';
 }
 
 async function renderOrders() {
@@ -193,7 +194,6 @@ function generatePDF(id) {
 function populateTiers() {
   const c = document.getElementById('tiersContainer');
   c.innerHTML = '';
-
   cfg.tiers.forEach(t => {
     const div = document.createElement('div');
     div.className = 'tier';
@@ -236,7 +236,9 @@ function populateAgreementEditor() {
   const sel = document.getElementById('editTierSelect');
   sel.innerHTML = '';
   cfg.tiers.forEach(t => sel.appendChild(new Option(t.name, t.id)));
-  sel.onchange = () => document.getElementById('agreementEditor').value = cfg.agreements[sel.value];
+  sel.onchange = () => {
+    document.getElementById('agreementEditor').value = cfg.agreements[sel.value];
+  };
   sel.dispatchEvent(new Event('change'));
 }
 
@@ -339,7 +341,7 @@ async function initWidget() {
     if (np) {
       cfg.adminPassword = np;
       await saveConfig(cfg);
-      alert('Password updated.');
+      alert('Admin password updated.');
       document.getElementById('newAdminPassword').value = '';
     }
   };
