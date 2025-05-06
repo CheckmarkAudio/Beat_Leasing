@@ -97,7 +97,7 @@ async function updateOrder(id, data) {
 }
 
 async function resetAll() {
-  await deleteDoc(doc(db, 'leasing', leaseId, 'config'));
+  await deleteDoc(doc(db, 'leasing', leaseId));
   const snaps = await getDocs(collection(db, 'leasing', leaseId, 'orders', 'items'));
   await Promise.all(snaps.docs.map(d => deleteDoc(d.ref)));
 }
