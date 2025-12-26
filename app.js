@@ -152,17 +152,35 @@ async function renderOrders() {
 
   (await loadOrders()).forEach(o => {
     const li = document.createElement('li');
-    li.textContent = `${new Date(o.date).toLocaleString()} | ${o.beat} | ${o.tier} | ${o.email}`;
+    const paymentStatus = o.payment?.status || (o.completed ? 'fulfilled' : 'pending');
+    const fulfillment   = o.fulfillment?.status || (o.completed ? 'delivered' : 'awaiting');
+    li.innerHTML = `
+      <div><strong>${o.beatMetadata?.title || o.beat}</strong> | ${o.tier} | ${o.email}</div>
+      <div>${new Date(o.date).toLocaleString()}</div>
+      <div>Payment: <strong>${paymentStatus}</strong> ${o.payment?.transactionId ? `(#${o.payment.transactionId})` : ''}</div>
+      <div>Fulfillment: <strong>${fulfillment}</strong></div>
+    `;
     if (!o.completed) {
-      const btn = document.createElement('button');
-      btn.textContent = 'Mark Complete';
-      btn.className   = 'mark-btn';
-      btn.onclick = async () => {
-        await updateOrder(o.id, { completed: true });
+      const paymentBtn = document.createElement('button');
+      paymentBtn.textContent = 'Mark Payment Received';
+      paymentBtn.className   = 'mark-btn';
+      paymentBtn.onclick = async () => {
+        const tx = prompt('Enter transaction ID (Stripe/PayPal):', o.payment?.transactionId || '');
+        await updateOrder(o.id, { payment: { ...(o.payment || {}), status: 'succeeded', transactionId: tx || crypto.randomUUID() } });
         renderOrders();
         renderNotification();
       };
-      li.appendChild(btn);
+
+      const fulfillBtn = document.createElement('button');
+      fulfillBtn.textContent = 'Mark Fulfilled';
+      fulfillBtn.className   = 'mark-btn';
+      fulfillBtn.onclick = async () => {
+        await updateOrder(o.id, { fulfillment: { ...(o.fulfillment || {}), status: 'delivered' }, completed: true });
+        renderOrders();
+        renderNotification();
+      };
+      li.appendChild(paymentBtn);
+      li.appendChild(fulfillBtn);
       pList.appendChild(li);
     } else {
       cList.appendChild(li);
@@ -261,6 +279,12 @@ async function initWidget() {
   document.getElementById('continueBtn').onclick = async () => {
     const email = document.getElementById('emailInput').value.trim();
     const beat  = document.getElementById('beatTitle').value.trim();
+    const isrc  = document.getElementById('isrcInput').value.trim();
+    const upc   = document.getElementById('upcInput').value.trim();
+    const fileLinks = document.getElementById('fileLinksInput').value
+      .split(',')
+      .map(s => s.trim())
+      .filter(Boolean);
     const sel   = document.querySelector('input[name="tier"]:checked');
     const secret= atob(secretEnc);
 
@@ -278,20 +302,49 @@ async function initWidget() {
       return alert('Select tier, enter beat and email.');
     }
 
+    const checkoutSessionId = `sess_${Math.random().toString(36).slice(2)}`;
+    const transactionId     = `txn_${Math.random().toString(36).slice(2)}`;
+
     await addOrder({
-      date:      new Date().toISOString(),
+      date: new Date().toISOString(),
       beat,
-      tier:      sel.value,
+      beatMetadata: { title: beat, isrc, upc, fileLinks },
+      tier: sel.value,
       email,
+      payment: { processor: 'stripe', status: 'pending', checkoutSessionId, transactionId },
+      fulfillment: { status: 'awaiting', secureLinks: fileLinks },
       completed: false
     });
 
-    alert('Order received!');
+    alert('Checkout session created! Complete payment via the processor to finalize delivery.');
     document.getElementById('beatTitle').value = '';
     document.getElementById('emailInput').value = '';
+    document.getElementById('isrcInput').value = '';
+    document.getElementById('upcInput').value  = '';
+    document.getElementById('fileLinksInput').value = '';
     document.querySelectorAll('input[name="tier"]').forEach(i => i.checked = false);
     document.querySelectorAll('.download-btn').forEach(b => b.style.display = 'none');
     await renderNotification();
+  };
+
+  document.getElementById('viewHistoryBtn').onclick = async () => {
+    const email = document.getElementById('historyEmail').value.trim();
+    const list  = document.getElementById('orderHistoryList');
+    list.innerHTML = '';
+    if (!email) return;
+    const orders = (await loadOrders()).filter(o => (o.email || '').toLowerCase() === email.toLowerCase());
+    if (!orders.length) {
+      list.innerHTML = '<li>No orders found for this email.</li>';
+      return;
+    }
+    orders.forEach(o => {
+      const li = document.createElement('li');
+      li.innerHTML = `
+        <strong>${o.beatMetadata?.title || o.beat}</strong> (${o.tier}) - Payment: ${o.payment?.status || 'pending'};
+        Fulfillment: ${o.fulfillment?.status || (o.completed ? 'delivered' : 'pending')}
+      `;
+      list.appendChild(li);
+    });
   };
 
   document.getElementById('viewPendingBtn').onclick = () => {
