@@ -39,11 +39,35 @@
       Beat Title:
       <input type="text" id="beatTitle">
     </label>
+    <div class="grid">
+      <label>
+        ISRC:
+        <input type="text" id="isrcInput" placeholder="US-ABC-23-00001">
+      </label>
+      <label>
+        UPC:
+        <input type="text" id="upcInput" placeholder="123456789012">
+      </label>
+    </div>
+    <label>
+      File Download Link(s):
+      <input type="url" id="fileLinksInput" placeholder="Comma-separated URLs">
+    </label>
     <label>
       Email:
       <input type="email" id="emailInput">
     </label>
     <button id="continueBtn">Submit Order</button>
+
+    <div class="order-history">
+      <h3>Your Order History</h3>
+      <p>Enter your purchase email to view your previous orders.</p>
+      <div class="flex-row">
+        <input type="email" id="historyEmail" placeholder="you@example.com">
+        <button id="viewHistoryBtn">View Orders</button>
+      </div>
+      <ul id="orderHistoryList"></ul>
+    </div>
 
     <!-- Admin Panel -->
     <div id="adminPanel" class="admin-panel hidden">
